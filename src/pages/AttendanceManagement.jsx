@@ -10,7 +10,7 @@ import { Pencil, Trash2 } from 'lucide-react';
 
 export const AttendanceManagement = () => {
 
-  const [mode, setMode] = useState("take"); // take | view
+  const [mode, setMode] = useState("take");
 
   const [students, setStudents] = useState([]);
   const [subjects, setSubjects] = useState([]);
@@ -47,23 +47,31 @@ export const AttendanceManagement = () => {
 
   useEffect(() => { load(); }, []);
 
-  // ================= FILTER SUBJECT =================
+  // ================= FILTER =================
   const filteredSubjects =
     dept
       ? subjects.filter(s => String(s.department) === String(dept))
       : subjects;
 
-  // ================= FILTER STUDENTS =================
   const filteredStudents =
     dept
       ? students.filter(s => String(s.department) === String(dept))
       : students;
 
-  // ================= TAKE MODE =================
   const finalStudents = filteredStudents.filter(s =>
     (s.roll_no || "").toLowerCase().includes(search.toLowerCase())
   );
 
+  const finalRecords = attendance.filter(row => {
+    return (
+      (!dept || String(row.department) === String(dept)) &&
+      (!subject || String(row.subject_id) === String(subject)) &&
+      (!filterDate || row.date === filterDate) &&
+      (row.student || "").toLowerCase().includes(search.toLowerCase())
+    );
+  });
+
+  // ================= ACTIONS =================
   const toggleStatus = (id) => {
     setStudents(prev =>
       prev.map(s =>
@@ -80,40 +88,19 @@ export const AttendanceManagement = () => {
     }
 
     for (let s of finalStudents) {
-      try {
-        await attendanceService.create({
-          student: s.id,
-          subject,
-          date,
-          status: s.status ? 1 : 0,
-          created_by: createdBy
-        });
-      } catch {}
+      await attendanceService.create({
+        student: s.id,
+        subject,
+        date,
+        status: s.status ? 1 : 0,
+        created_by: createdBy
+      });
     }
 
     setMessage("Attendance submitted ✅");
     load();
   };
 
-  // ================= VIEW MODE =================
-  const finalRecords = attendance.filter(row => {
-
-    const matchesSearch =
-      (row.student || "").toLowerCase().includes(search.toLowerCase());
-
-    const matchesDept =
-      !dept || String(row.department) === String(dept);
-
-    const matchesSubject =
-      !subject || String(row.subject_id) === String(subject);
-
-    const matchesDate =
-      !filterDate || row.date === filterDate;
-
-    return matchesSearch && matchesDept && matchesSubject && matchesDate;
-  });
-
-  // ================= EDIT =================
   const handleUpdate = async () => {
 
     if (!editData.updated_by) return;
@@ -126,41 +113,45 @@ export const AttendanceManagement = () => {
 
     setEditData(null);
     load();
-    setMessage("Updated successfully ✅");
   };
 
-  // ================= DELETE =================
   const confirmDelete = async () => {
     await attendanceService.delete(deleteId);
     setDeleteId(null);
     load();
-    setMessage("Deleted successfully ✅");
   };
 
   return (
     <div className="space-y-6">
 
       {/* MODE SWITCH */}
-      <div className="flex gap-3">
-        <button onClick={()=>setMode("take")} className={`px-4 py-2 rounded ${mode==="take"?"bg-indigo-600 text-white":"border"}`}>
+      <div className="flex flex-col sm:flex-row gap-3">
+        <button
+          onClick={()=>setMode("take")}
+          className={`px-4 py-2 rounded ${mode==="take"?"bg-indigo-600 text-white":"border"}`}
+        >
           Take Attendance
         </button>
-        <button onClick={()=>setMode("view")} className={`px-4 py-2 rounded ${mode==="view"?"bg-indigo-600 text-white":"border"}`}>
+
+        <button
+          onClick={()=>setMode("view")}
+          className={`px-4 py-2 rounded ${mode==="view"?"bg-indigo-600 text-white":"border"}`}
+        >
           View Records
         </button>
       </div>
 
       {/* FILTERS */}
-      <div className="flex gap-3">
+      <div className="flex flex-col sm:flex-row gap-3">
 
-        <select onChange={(e)=>setDept(e.target.value)} className="border px-3 py-2 rounded">
+        <select onChange={(e)=>setDept(e.target.value)} className="w-full sm:w-auto border px-3 py-2 rounded">
           <option value="">All Departments</option>
           {departments.map(d=>(
             <option key={d.id} value={d.id}>{d.department_name}</option>
           ))}
         </select>
 
-        <select onChange={(e)=>setSubject(e.target.value)} className="border px-3 py-2 rounded">
+        <select onChange={(e)=>setSubject(e.target.value)} className="w-full sm:w-auto border px-3 py-2 rounded">
           <option value="">All Subjects</option>
           {filteredSubjects.map(s=>(
             <option key={s.id} value={s.id}>{s.sub_name}</option>
@@ -168,31 +159,31 @@ export const AttendanceManagement = () => {
         </select>
 
         {mode==="take" && (
-          <input type="date" onChange={(e)=>setDate(e.target.value)} className="border px-3 py-2 rounded"/>
+          <input type="date" onChange={(e)=>setDate(e.target.value)} className="w-full sm:w-auto border px-3 py-2 rounded"/>
         )}
       </div>
 
-      {/* SEARCH + DATE FILTER */}
-      <div className="bg-white p-4 rounded-xl shadow flex gap-3">
+      {/* SEARCH */}
+      <div className="bg-white p-4 rounded-xl shadow flex flex-col sm:flex-row gap-3">
         <input
           placeholder="Search..."
           onChange={(e)=>setSearch(e.target.value)}
-          className="border px-4 py-2 rounded w-1/2"
+          className="w-full border px-4 py-2 rounded"
         />
 
         {mode==="view" && (
           <input
             type="date"
             onChange={(e)=>setFilterDate(e.target.value)}
-            className="border px-3 py-2 rounded"
+            className="w-full sm:w-auto border px-3 py-2 rounded"
           />
         )}
       </div>
 
       {/* TABLE */}
-      <div className="bg-white rounded-xl shadow overflow-hidden">
+      <div className="bg-white rounded-xl shadow overflow-x-auto">
 
-        <table className="w-full">
+        <table className="w-full min-w-[700px]">
 
           <thead className="bg-gray-100">
             <tr>
@@ -241,7 +232,7 @@ export const AttendanceManagement = () => {
                 <td className="p-3">{r.date}</td>
                 <td className="p-3">{r.status ? "Present" : "Absent"}</td>
 
-                <td className="p-3 flex gap-4">
+                <td className="p-3 flex gap-3">
                   <Pencil size={18} onClick={()=>setEditData({...r, updated_by:""})} className="cursor-pointer text-indigo-600"/>
                   <Trash2 size={18} onClick={()=>setDeleteId(r.id)} className="cursor-pointer text-red-500"/>
                 </td>
@@ -253,15 +244,19 @@ export const AttendanceManagement = () => {
         </table>
       </div>
 
-      {/* BULK */}
+      {/* BULK SUBMIT */}
       {mode==="take" && (
         <div className="bg-white p-4 rounded shadow space-y-2">
           <input
             placeholder="Created By"
             onChange={(e)=>setCreatedBy(e.target.value)}
-            className="border p-2 w-full"
+            className="w-full border p-2 rounded"
           />
-          <button onClick={handleSubmit} className="bg-indigo-600 text-white w-full p-2 rounded">
+
+          <button
+            onClick={handleSubmit}
+            className="w-full bg-indigo-600 text-white py-2 rounded"
+          >
             Submit Attendance
           </button>
         </div>
@@ -269,9 +264,9 @@ export const AttendanceManagement = () => {
 
       {/* EDIT MODAL */}
       {editData && (
-        <div className="fixed inset-0 bg-black/40 flex justify-center items-center">
-          <div className="bg-white p-6 rounded-xl w-96">
-            <h3 className="mb-3">Edit Attendance</h3>
+        <div className="fixed inset-0 bg-black/40 flex justify-center items-center px-4">
+          <div className="bg-white p-6 rounded-xl w-full max-w-md">
+            <h3 className="mb-3 font-semibold">Edit Attendance</h3>
 
             <label className="flex gap-2 mb-3">
               <input
@@ -285,10 +280,13 @@ export const AttendanceManagement = () => {
             <input
               placeholder="Updated By"
               onChange={(e)=>setEditData({...editData, updated_by:e.target.value})}
-              className="border p-2 w-full mb-3"
+              className="border p-2 w-full mb-3 rounded"
             />
 
-            <button onClick={handleUpdate} className="w-full bg-indigo-600 text-white py-2">
+            <button
+              onClick={handleUpdate}
+              className="w-full bg-indigo-600 text-white py-2 rounded"
+            >
               Update
             </button>
           </div>
@@ -297,12 +295,18 @@ export const AttendanceManagement = () => {
 
       {/* DELETE MODAL */}
       {deleteId && (
-        <div className="fixed inset-0 bg-black/40 flex justify-center items-center">
-          <div className="bg-white p-6 rounded-xl w-80 text-center">
+        <div className="fixed inset-0 bg-black/40 flex justify-center items-center px-4">
+          <div className="bg-white p-6 rounded-xl w-full max-w-sm text-center">
             <h3>Confirm Delete</h3>
+
             <div className="flex gap-3 mt-4">
-              <button onClick={()=>setDeleteId(null)} className="w-full border py-2">Cancel</button>
-              <button onClick={confirmDelete} className="w-full bg-red-500 text-white py-2">Delete</button>
+              <button onClick={()=>setDeleteId(null)} className="w-full border py-2 rounded">
+                Cancel
+              </button>
+
+              <button onClick={confirmDelete} className="w-full bg-red-500 text-white py-2 rounded">
+                Delete
+              </button>
             </div>
           </div>
         </div>
