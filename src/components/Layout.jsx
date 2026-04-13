@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { cn } from "../utils/cn"
+import { cn } from "../utils/cn";
 import { 
   LayoutDashboard, 
   Users, 
@@ -13,9 +13,7 @@ import {
   Menu,
   X,
   ChevronRight,
-  ChevronDown,
-  Settings,
-  UserCircle
+  ChevronDown
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
@@ -39,6 +37,7 @@ const Layout = ({ children }) => {
   const { user, logout } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
+
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const dropdownRef = useRef(null);
@@ -79,96 +78,128 @@ const Layout = ({ children }) => {
 
   return (
     <div className="min-h-screen bg-slate-50 flex">
-      {/* Sidebar - Desktop */}
+
+      {/* 🔥 MOBILE SIDEBAR */}
+      <AnimatePresence>
+        {isMobileMenuOpen && (
+          <>
+            {/* Overlay */}
+            <motion.div
+              className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsMobileMenuOpen(false)}
+            />
+
+            {/* Sidebar */}
+            <motion.aside
+              initial={{ x: -300 }}
+              animate={{ x: 0 }}
+              exit={{ x: -300 }}
+              className="fixed top-0 left-0 h-full w-64 bg-slate-900 text-white p-4 z-50 lg:hidden"
+            >
+              <div className="flex justify-between items-center mb-6">
+                <h1 className="text-lg font-bold">EduStream</h1>
+                <button onClick={() => setIsMobileMenuOpen(false)}>
+                  <X />
+                </button>
+              </div>
+
+              <nav className="space-y-2">
+                {navItems.map((item) => (
+                  <SidebarItem
+                    key={item.to}
+                    {...item}
+                    active={location.pathname === item.to}
+                  />
+                ))}
+              </nav>
+            </motion.aside>
+          </>
+        )}
+      </AnimatePresence>
+
+      {/* 🔥 DESKTOP SIDEBAR */}
       <aside className="hidden lg:flex flex-col w-64 bg-slate-900 text-white p-4 fixed h-full z-50">
         <div className="flex items-center gap-2 px-4 py-6 mb-8">
           <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center font-bold text-xl">E</div>
-          <h1 className="text-xl font-bold tracking-tight">EduStream</h1>
+          <h1 className="text-xl font-bold">EduStream</h1>
         </div>
 
         <nav className="flex-1 space-y-2">
           {navItems.map((item) => (
             <SidebarItem
               key={item.to}
-              to={item.to}
-              icon={item.icon}
-              label={item.label}
+              {...item}
               active={location.pathname === item.to}
             />
           ))}
         </nav>
       </aside>
 
+      {/* 🔥 MAIN CONTENT */}
       <div className="flex-1 lg:ml-64 flex flex-col min-h-screen">
-        {/* Top Header - Desktop & Mobile */}
-        <header className="sticky top-0 bg-white/80 backdrop-blur-md border-b border-slate-200 z-40 px-4 lg:px-8 h-16 flex items-center justify-between">
+
+        {/* HEADER */}
+        <header className="sticky top-0 bg-white/80 backdrop-blur-md border-b z-40 px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+
+          {/* Mobile left */}
           <div className="flex items-center gap-2 lg:hidden">
-            <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center font-bold text-white">E</div>
-            <h1 className="text-lg font-bold">EduStream</h1>
+            <button onClick={() => setIsMobileMenuOpen(true)}>
+              <Menu />
+            </button>
+            <h1 className="font-bold">EduStream</h1>
           </div>
 
+          {/* Desktop title */}
           <div className="hidden lg:block">
-            <h2 className="text-sm font-semibold text-slate-500 uppercase tracking-wider">
+            <h2 className="text-sm font-semibold text-slate-500 uppercase">
               {navItems.find(item => item.to === location.pathname)?.label || 'Dashboard'}
             </h2>
           </div>
 
-          <div className="flex items-center gap-4">
-            <button 
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="p-2 text-slate-600 lg:hidden"
+          {/* Profile */}
+          <div className="relative" ref={dropdownRef}>
+            <button
+              onClick={() => setIsProfileOpen(!isProfileOpen)}
+              className="flex items-center gap-2"
             >
-              {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+              <div className="w-9 h-9 bg-indigo-600 text-white flex items-center justify-center rounded-lg">
+                <UserIcon size={18} />
+              </div>
+              <ChevronDown size={16} />
             </button>
 
-            <div className="relative" ref={dropdownRef}>
-              <button 
-                onClick={() => setIsProfileOpen(!isProfileOpen)}
-                className="flex items-center gap-3 p-1.5 rounded-xl hover:bg-slate-50 transition-colors group"
-              >
-                <div className="w-9 h-9 rounded-lg bg-indigo-600 text-white flex items-center justify-center shadow-md shadow-indigo-100 group-hover:scale-105 transition-transform">
-                  <UserIcon size={20} />
-                </div>
-                <div className="hidden sm:block text-left">
-                  <p className="text-sm font-bold text-slate-900 leading-none mb-1">{user?.name}</p>
-                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none">{user?.role}</p>
-                </div>
-                <ChevronDown size={16} className={cn("text-slate-400 transition-transform", isProfileOpen && "rotate-180")} />
-              </button>
-
-              <AnimatePresence>
-                {isProfileOpen && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                    exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                    className="absolute right-0 mt-2 w-48 bg-white rounded-2xl shadow-xl shadow-slate-200/60 border border-slate-100 py-2 z-50"
+            <AnimatePresence>
+              {isProfileOpen && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0 }}
+                  className="absolute right-0 mt-2 w-44 bg-white rounded-lg shadow p-2 z-50"
+                >
+                  <p className="text-sm font-bold px-2">{user?.name}</p>
+                  <button
+                    onClick={handleLogout}
+                    className="w-full text-left px-2 py-2 text-red-500 hover:bg-red-50"
                   >
-                    <div className="px-4 py-3 border-b border-slate-50 mb-1">
-                      <p className="text-sm font-bold text-slate-900">{user?.name}</p>
-                      <p className="text-xs text-slate-500 truncate">{user?.email || `${user?.roll_no}@edustream.com`}</p>
-                    </div>
-                    
-                    <button
-                      onClick={handleLogout}
-                      className="flex items-center gap-3 px-4 py-2.5 w-full text-left text-red-600 hover:bg-red-50 transition-colors text-sm font-bold"
-                    >
-                      <LogOut size={18} />
-                      Logout
-                    </button>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
+                    Logout
+                  </button>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
+
         </header>
 
-        {/* Main Content */}
-        <main className="flex-1 p-4 lg:p-8">
-          <div className="max-w-6xl mx-auto">
+        {/* CONTENT */}
+        <main className="flex-1 p-4 sm:p-6 lg:p-8">
+          <div className="w-full max-w-7xl mx-auto">
             {children}
           </div>
         </main>
+
       </div>
     </div>
   );
