@@ -39,7 +39,14 @@ export const AttendanceManagement = () => {
       attendanceService.getAll()
     ]);
 
-    setStudents(stu.data?.data || []);
+    // ✅ FIX: initialize status
+    setStudents(
+      (stu.data?.data || []).map(s => ({
+        ...s,
+        status: false
+      }))
+    );
+
     setSubjects(sub.data?.data || []);
     setDepartments(deptRes.data?.data || []);
     setAttendance(att.data?.data || []);
@@ -71,7 +78,7 @@ export const AttendanceManagement = () => {
     );
   });
 
-  // ================= ACTIONS =================
+  // ================= TOGGLE =================
   const toggleStatus = (id) => {
     setStudents(prev =>
       prev.map(s =>
@@ -80,6 +87,7 @@ export const AttendanceManagement = () => {
     );
   };
 
+  // ================= SUBMIT =================
   const handleSubmit = async () => {
 
     if (!dept || !subject || !date || !createdBy) {
@@ -87,20 +95,32 @@ export const AttendanceManagement = () => {
       return;
     }
 
-    for (let s of finalStudents) {
-      await attendanceService.create({
-        student: s.id,
-        subject,
-        date,
-        status: s.status ? 1 : 0,
-        created_by: createdBy
-      });
-    }
+    try {
+      for (let s of finalStudents) {
 
-    setMessage("Attendance submitted ✅");
-    load();
+        const payload = {
+          student: s.id,
+          subject: Number(subject), // ✅ FIXED
+          date,
+          status: s.status ? 1 : 0,
+          created_by: createdBy
+        };
+
+        console.log("Sending:", payload); // DEBUG
+
+        await attendanceService.create(payload);
+      }
+
+      setMessage("Attendance submitted ✅");
+      load();
+
+    } catch (err) {
+      console.error(err);
+      setMessage("Error submitting ❌");
+    }
   };
 
+  // ================= UPDATE =================
   const handleUpdate = async () => {
 
     if (!editData.updated_by) return;
@@ -115,6 +135,7 @@ export const AttendanceManagement = () => {
     load();
   };
 
+  // ================= DELETE =================
   const confirmDelete = async () => {
     await attendanceService.delete(deleteId);
     setDeleteId(null);
@@ -152,7 +173,7 @@ export const AttendanceManagement = () => {
         </select>
 
         <select onChange={(e)=>setSubject(e.target.value)} className="w-full sm:w-auto border px-3 py-2 rounded">
-          <option value="">All Subjects</option>
+          <option value="">Select Subject</option>
           {filteredSubjects.map(s=>(
             <option key={s.id} value={s.id}>{s.sub_name}</option>
           ))}
@@ -180,9 +201,13 @@ export const AttendanceManagement = () => {
         )}
       </div>
 
+      {/* MESSAGE */}
+      {message && (
+        <p className="text-sm text-red-500">{message}</p>
+      )}
+
       {/* TABLE */}
       <div className="bg-white rounded-xl shadow overflow-x-auto">
-
         <table className="w-full min-w-[700px]">
 
           <thead className="bg-gray-100">
@@ -244,7 +269,7 @@ export const AttendanceManagement = () => {
         </table>
       </div>
 
-      {/* BULK SUBMIT */}
+      {/* SUBMIT */}
       {mode==="take" && (
         <div className="bg-white p-4 rounded shadow space-y-2">
           <input
