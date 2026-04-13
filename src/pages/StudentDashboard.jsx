@@ -6,8 +6,6 @@ import {
   User,
   Mail,
   BookOpen,
-  Award,
-  CalendarCheck,
   TrendingUp
 } from "lucide-react";
 
@@ -21,7 +19,7 @@ export const StudentDashboard = () => {
   const [attendance, setAttendance] = useState([]);
   const [subjects, setSubjects] = useState([]);
 
-  // ================= FETCH DATA =================
+  // ================= FETCH =================
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -60,12 +58,12 @@ export const StudentDashboard = () => {
       : 0;
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6 sm:space-y-8">
 
       {/* HEADER */}
       <div>
-        <h2 className="text-xl font-bold">
-          Student Profile & Dashboard
+        <h2 className="text-lg sm:text-xl font-bold">
+          Student Dashboard
         </h2>
         <p className="text-gray-500 text-sm">
           Welcome back, {profile?.name}
@@ -75,20 +73,25 @@ export const StudentDashboard = () => {
       {/* ================= TOP SECTION ================= */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
-        {/* PROFILE CARD */}
-        <div className="bg-white p-6 rounded-2xl shadow-sm border text-center">
-          <div className="w-16 h-16 bg-indigo-100 rounded-full flex items-center justify-center mx-auto mb-4">
+        {/* PROFILE */}
+        <div className="bg-white p-5 rounded-2xl shadow border text-center">
+
+          <div className="w-14 h-14 sm:w-16 sm:h-16 bg-indigo-100 rounded-full flex items-center justify-center mx-auto mb-4">
             <User />
           </div>
 
-          <h3 className="font-bold text-lg">{profile?.name}</h3>
-          <p className="text-sm text-gray-500">{profile?.roll_no}</p>
+          <h3 className="font-bold text-base sm:text-lg">
+            {profile?.name}
+          </h3>
+          <p className="text-sm text-gray-500">
+            {profile?.roll_no}
+          </p>
 
           <div className="mt-3 inline-block px-3 py-1 text-xs bg-indigo-100 text-indigo-600 rounded-full">
             STUDENT
           </div>
 
-          <div className="mt-6 space-y-3 text-sm text-left">
+          <div className="mt-5 space-y-2 text-sm text-left">
             <p className="flex items-center gap-2">
               <Mail size={16} /> {profile?.email}
             </p>
@@ -96,55 +99,54 @@ export const StudentDashboard = () => {
               <BookOpen size={16} /> {profile?.department}
             </p>
           </div>
+
         </div>
 
-        {/* STATS + OVERVIEW */}
-        <div className="lg:col-span-2 grid grid-cols-3 gap-4">
+        {/* STATS */}
+        <div className="lg:col-span-2 grid grid-cols-1 sm:grid-cols-3 gap-4">
 
-          {/* AVG MARKS */}
-          <div className="bg-white p-4 rounded-xl border">
-            <p className="text-sm text-gray-500">Avg Score</p>
-            <h2 className="text-xl font-bold text-indigo-600">
+          <div className="bg-white p-4 rounded-xl border text-center">
+            <p className="text-xs text-gray-500">Avg Score</p>
+            <h2 className="text-lg sm:text-xl font-bold text-indigo-600">
               {avgMarks}%
             </h2>
           </div>
 
-          {/* ATTENDANCE */}
-          <div className="bg-white p-4 rounded-xl border">
-            <p className="text-sm text-gray-500">Attendance</p>
-            <h2 className="text-xl font-bold text-green-600">
+          <div className="bg-white p-4 rounded-xl border text-center">
+            <p className="text-xs text-gray-500">Attendance</p>
+            <h2 className="text-lg sm:text-xl font-bold text-green-600">
               {attendanceRate}%
             </h2>
           </div>
 
-          {/* SUBJECT COUNT */}
-          <div className="bg-white p-4 rounded-xl border">
-            <p className="text-sm text-gray-500">Subjects</p>
-            <h2 className="text-xl font-bold text-blue-600">
+          <div className="bg-white p-4 rounded-xl border text-center">
+            <p className="text-xs text-gray-500">Subjects</p>
+            <h2 className="text-lg sm:text-xl font-bold text-blue-600">
               {subjects.length}
             </h2>
           </div>
 
-          {/* ACADEMIC OVERVIEW */}
-          <div className="col-span-3 bg-white p-4 rounded-xl border">
-            <div className="flex justify-between mb-3">
-              <h3 className="font-semibold">
+          {/* OVERVIEW */}
+          <div className="sm:col-span-3 bg-white p-4 rounded-xl border">
+            <div className="flex justify-between items-center mb-2">
+              <h3 className="font-semibold text-sm sm:text-base">
                 Academic Overview
               </h3>
               <TrendingUp size={18} />
             </div>
 
-            <div className="space-y-2 text-sm">
+            <div className="text-sm space-y-1">
               <p>✔ Status: Active</p>
-              <p>✔ Roll Number: {profile?.roll_no}</p>
+              <p>✔ Roll No: {profile?.roll_no}</p>
             </div>
           </div>
+
         </div>
       </div>
 
       {/* ================= ANALYTICS ================= */}
       <div>
-        <h3 className="font-bold mb-4 text-lg">
+        <h3 className="font-semibold mb-3 text-base sm:text-lg">
           Academic Performance
         </h3>
 
@@ -154,12 +156,12 @@ export const StudentDashboard = () => {
         />
       </div>
 
-      {/* ================= TABLES ================= */}
+      {/* ================= LISTS ================= */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
         {/* MARKS */}
         <div className="bg-white p-4 rounded-xl border">
-          <h3 className="font-semibold mb-3">
+          <h3 className="font-semibold mb-3 text-sm sm:text-base">
             Recent Marks
           </h3>
 
@@ -171,7 +173,7 @@ export const StudentDashboard = () => {
             marks.map((m, i) => (
               <div
                 key={i}
-                className="flex justify-between py-2 border-b last:border-none"
+                className="flex justify-between py-2 border-b last:border-none text-sm"
               >
                 <p>{m.subject}</p>
                 <p className="text-indigo-600 font-bold">
@@ -184,7 +186,7 @@ export const StudentDashboard = () => {
 
         {/* ATTENDANCE */}
         <div className="bg-white p-4 rounded-xl border">
-          <h3 className="font-semibold mb-3">
+          <h3 className="font-semibold mb-3 text-sm sm:text-base">
             Recent Attendance
           </h3>
 
@@ -196,7 +198,7 @@ export const StudentDashboard = () => {
             attendance.map((a, i) => (
               <div
                 key={i}
-                className="flex justify-between py-2 border-b last:border-none"
+                className="flex justify-between py-2 border-b last:border-none text-sm"
               >
                 <p>{a.subject}</p>
                 <p
@@ -212,6 +214,7 @@ export const StudentDashboard = () => {
             ))
           )}
         </div>
+
       </div>
 
     </div>
