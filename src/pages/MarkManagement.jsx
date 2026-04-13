@@ -37,6 +37,7 @@ export const MarkManagement = () => {
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState("");
 
   // ================= FETCH =================
   const fetchData = async () => {
@@ -93,8 +94,10 @@ export const MarkManagement = () => {
     s => String(s.department) === formData.department_id
   );
 
-  // ================= OPEN MODAL =================
+  // ================= MODAL =================
   const handleOpenModal = (mark = null) => {
+    setError("");
+
     if (mark) {
       setEditingMark(mark);
       setFormData({
@@ -132,7 +135,10 @@ export const MarkManagement = () => {
       s => s.sub_name === formData.subject_name
     );
 
-    if (!student || !subject || !formData.marks) return;
+    if (!student || !subject || !formData.marks) {
+      setError("All fields are required");
+      return;
+    }
 
     setIsSubmitting(true);
 
@@ -141,7 +147,7 @@ export const MarkManagement = () => {
       if (editingMark) {
 
         if (!formData.updated_by.trim()) {
-          alert("Updated By is required");
+          setError("Updated By is required");
           return;
         }
 
@@ -154,7 +160,7 @@ export const MarkManagement = () => {
       } else {
 
         if (!formData.created_by.trim()) {
-          alert("Created By is required");
+          setError("Created By is required");
           return;
         }
 
@@ -169,6 +175,8 @@ export const MarkManagement = () => {
       fetchData();
       setIsModalOpen(false);
 
+    } catch (err) {
+      setError("Something went wrong");
     } finally {
       setIsSubmitting(false);
     }
@@ -189,8 +197,11 @@ export const MarkManagement = () => {
   return (
     <div className="space-y-6">
 
-      <div className="flex justify-between">
-        <h2 className="text-2xl font-bold">Marks Management</h2>
+      {/* HEADER */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <h2 className="text-xl sm:text-2xl font-bold">
+          Marks Management
+        </h2>
 
         <DepartmentFilter
           departments={departments}
@@ -199,6 +210,7 @@ export const MarkManagement = () => {
         />
       </div>
 
+      {/* TABLE */}
       <DataTable
         data={filteredMarks}
         rowKey="uniqueKey"
@@ -217,6 +229,8 @@ export const MarkManagement = () => {
       <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
         <form onSubmit={handleSubmit} className="space-y-4">
 
+          {error && <p className="text-red-500 text-sm">{error}</p>}
+
           <select
             value={formData.department_id}
             onChange={(e) =>
@@ -227,7 +241,7 @@ export const MarkManagement = () => {
                 subject_name: ''
               })
             }
-            className="w-full p-3 border rounded-xl"
+            className="w-full p-2 border rounded-xl"
           >
             <option value="">Select Department</option>
             {departments.map(d => (
@@ -242,7 +256,7 @@ export const MarkManagement = () => {
             onChange={(e) =>
               setFormData({ ...formData, student_roll_no: e.target.value })
             }
-            className="w-full p-3 border rounded-xl"
+            className="w-full p-2 border rounded-xl"
           >
             <option value="">Select Student</option>
             {filteredStudents.map(s => (
@@ -257,7 +271,7 @@ export const MarkManagement = () => {
             onChange={(e) =>
               setFormData({ ...formData, subject_name: e.target.value })
             }
-            className="w-full p-3 border rounded-xl"
+            className="w-full p-2 border rounded-xl"
           >
             <option value="">Select Subject</option>
             {filteredSubjects.map(s => (
@@ -274,38 +288,38 @@ export const MarkManagement = () => {
             onChange={(e) =>
               setFormData({ ...formData, marks: e.target.value })
             }
-            className="w-full p-3 border rounded-xl"
+            className="w-full p-2 border rounded-xl"
           />
 
-          {/* CREATED BY */}
-          {!editingMark && (
+          {!editingMark ? (
             <input
               placeholder="Created By"
               value={formData.created_by}
               onChange={(e)=>setFormData({...formData, created_by:e.target.value})}
-              className="w-full p-3 border rounded-xl"
+              className="w-full p-2 border rounded-xl"
             />
-          )}
-
-          {/* UPDATED BY */}
-          {editingMark && (
+          ) : (
             <input
               placeholder="Updated By"
               value={formData.updated_by}
               onChange={(e)=>setFormData({...formData, updated_by:e.target.value})}
-              className="w-full p-3 border rounded-xl"
+              className="w-full p-2 border rounded-xl"
             />
           )}
 
-          <button className="w-full bg-indigo-600 text-white py-3 rounded-xl">
+          <button
+            type="submit"
+            className="w-full bg-indigo-600 text-white py-2 rounded-xl"
+          >
             {isSubmitting
-              ? <Loader2 className="animate-spin mx-auto" />
-              : editingMark ? "Update" : "Create"}
+              ? <Loader2 className="animate-spin mx-auto"/>
+              : (editingMark ? "Update Marks" : "Add Marks")}
           </button>
 
         </form>
       </Modal>
 
+      {/* DELETE */}
       <ConfirmModal
         isOpen={isDeleteModalOpen}
         onClose={() => setIsDeleteModalOpen(false)}
