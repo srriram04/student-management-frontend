@@ -7,6 +7,7 @@ import DepartmentFilter from '../components/DepartmentFilter';
 import { Loader2 } from 'lucide-react';
 
 export const StudentManagement = () => {
+
   const [students, setStudents] = useState([]);
   const [departments, setDepartments] = useState([]);
   const [selectedDeptId, setSelectedDeptId] = useState('all');
@@ -45,7 +46,6 @@ export const StudentManagement = () => {
       const deptData = deptRes.data.data || deptRes.data || [];
       const studentData = stuRes.data.data || [];
 
-      // ✅ Map department name
       const updatedStudents = studentData.map((s) => {
         const dept = deptData.find(
           (d) =>
@@ -225,15 +225,18 @@ export const StudentManagement = () => {
   return (
     <div className="space-y-6">
 
-      {/* ✅ SUCCESS MESSAGE */}
+      {/* SUCCESS */}
       {success && (
-        <div className="bg-green-100 text-green-700 p-2 rounded">
+        <div className="bg-green-100 text-green-700 p-3 rounded-lg text-sm">
           {success}
         </div>
       )}
 
-      <div className="flex justify-between">
-        <h2 className="text-2xl font-bold">Student Management</h2>
+      {/* HEADER */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <h2 className="text-xl sm:text-2xl font-bold">
+          Student Management
+        </h2>
 
         <DepartmentFilter
           departments={departments}
@@ -242,6 +245,7 @@ export const StudentManagement = () => {
         />
       </div>
 
+      {/* TABLE */}
       <DataTable
         data={filteredStudents}
         columns={[
@@ -255,16 +259,17 @@ export const StudentManagement = () => {
         onDelete={handleDelete}
       />
 
+      {/* MODAL */}
       <Modal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         title={editingStudent ? "Edit Student" : "Add Student"}
       >
-        <form onSubmit={handleSubmit} className="space-y-3">
+        <form onSubmit={handleSubmit} className="space-y-4">
 
-          {errors.api && <p className="text-red-500">{errors.api}</p>}
+          {errors.api && <p className="text-red-500 text-sm">{errors.api}</p>}
 
-          {/* Department */}
+          {/* DEPARTMENT */}
           <select
             value={formData.department_id || ""}
             onChange={(e) =>
@@ -276,11 +281,9 @@ export const StudentManagement = () => {
             className="w-full p-2 border rounded-xl"
           >
             <option value="">Select Department</option>
-
             {departments.map((d, index) => {
               const id = d.department_id || d.id;
               const name = d.department_name || d.name;
-
               return (
                 <option key={`${id}-${index}`} value={String(id)}>
                   {name}
@@ -290,7 +293,8 @@ export const StudentManagement = () => {
           </select>
           <p className="text-red-500 text-sm">{errors.department_id}</p>
 
-          <div className="grid grid-cols-2 gap-4">
+          {/* FORM GRID */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
 
             <div className="space-y-2">
               <input placeholder="Roll No"
@@ -363,6 +367,7 @@ export const StudentManagement = () => {
         </form>
       </Modal>
 
+      {/* DELETE */}
       <ConfirmModal
         isOpen={isDeleteModalOpen}
         onClose={()=>setIsDeleteModalOpen(false)}
