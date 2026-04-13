@@ -3,6 +3,8 @@ import { useAuth } from '../context/AuthContext';
 import axios from 'axios';
 import DataTable from '../components/DataTable';
 
+const BASE_URL = "https://student-management-backend-3dbc.onrender.com"; // ✅ ADD THIS
+
 export const StudentSubjects = () => {
   const [subjects, setSubjects] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -18,7 +20,6 @@ export const StudentSubjects = () => {
           `${BASE_URL}/student_subjects/${user.roll_no}/`
         );
 
-        // ✅ DIRECT DATA FROM BACKEND
         setSubjects(res.data?.data || []);
 
       } catch (err) {
@@ -34,8 +35,6 @@ export const StudentSubjects = () => {
 
   return (
     <div className="space-y-6">
-
-      {/* HEADER */}
       <div>
         <h2 className="text-2xl font-bold text-slate-900">
           My Subjects
@@ -45,7 +44,6 @@ export const StudentSubjects = () => {
         </p>
       </div>
 
-      {/* TABLE */}
       <DataTable
         data={subjects}
         isLoading={isLoading}
@@ -62,7 +60,6 @@ export const StudentSubjects = () => {
           },
         ]}
       />
-
     </div>
   );
 };
