@@ -184,8 +184,10 @@ export const DepartmentManagement = () => {
     <div className="space-y-6">
 
       {/* HEADER */}
-      <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold">Department Management</h2>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <h2 className="text-xl sm:text-2xl font-bold">
+          Department Management
+        </h2>
 
         <DepartmentFilter
           departments={departments}
@@ -242,7 +244,6 @@ export const DepartmentManagement = () => {
             </div>
           )}
 
-          {/* NAME */}
           <input
             type="text"
             placeholder="Department Name"
@@ -251,7 +252,6 @@ export const DepartmentManagement = () => {
             className="w-full p-2 border rounded-xl"
           />
 
-          {/* CREATED BY (ONLY ADD) */}
           {!editingDept && (
             <input
               type="text"
@@ -262,7 +262,6 @@ export const DepartmentManagement = () => {
             />
           )}
 
-          {/* UPDATED BY (ONLY EDIT) */}
           {editingDept && (
             <input
               type="text"
@@ -273,7 +272,7 @@ export const DepartmentManagement = () => {
             />
           )}
 
-          <div className="flex gap-2">
+          <div className="flex flex-col sm:flex-row gap-2">
             <button
               type="button"
               onClick={()=>setIsModalOpen(false)}
