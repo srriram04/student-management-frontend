@@ -1,25 +1,33 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom"
+import { BrowserRouter as Router, Routes, Route, Navigate, Outlet } from "react-router-dom";
 
-import { AuthProvider } from "./context/AuthContext"
+import { AuthProvider } from "./context/AuthContext";
 
-import { AdminLoginPage } from "./pages/AdminLoginPage"
-import StudentLoginPage from "./pages/StudentLoginPage"
+import { AdminLoginPage } from "./pages/AdminLoginPage";
+import StudentLoginPage from "./pages/StudentLoginPage";
 
-import Layout from "./components/Layout"
-import ProtectedRoute from "./components/ProtectedRoute"
+import Layout from "./components/Layout";
+import ProtectedRoute from "./components/ProtectedRoute";
 
-import { AdminDashboard } from "./pages/AdminDashboard"
-import { StudentDashboard } from "./pages/StudentDashboard"
+import { AdminDashboard } from "./pages/AdminDashboard";
+import { StudentDashboard } from "./pages/StudentDashboard";
 
-import { DepartmentManagement } from "./pages/DepartmentManagement"
-import { StudentManagement } from "./pages/StudentManagement"
-import { SubjectManagement } from "./pages/SubjectManagement"
-import { MarkManagement } from "./pages/MarkManagement"
-import { AttendanceManagement } from "./pages/AttendanceManagement"
+import { DepartmentManagement } from "./pages/DepartmentManagement";
+import { StudentManagement } from "./pages/StudentManagement";
+import { SubjectManagement } from "./pages/SubjectManagement";
+import { MarkManagement } from "./pages/MarkManagement";
+import { AttendanceManagement } from "./pages/AttendanceManagement";
 
-import { StudentSubjects } from "./pages/StudentSubjects"
-import { StudentMarks } from "./pages/StudentMarks"
-import { StudentAttendance } from "./pages/StudentAttendance"
+import { StudentSubjects } from "./pages/StudentSubjects";
+import { StudentMarks } from "./pages/StudentMarks";
+import { StudentAttendance } from "./pages/StudentAttendance";
+
+
+// 🔥 Wrapper Layout Route (IMPORTANT)
+const LayoutWrapper = () => (
+  <Layout>
+    <Outlet />
+  </Layout>
+);
 
 export default function App() {
   return (
@@ -27,130 +35,48 @@ export default function App() {
       <Router>
         <Routes>
 
-          {/* Public Routes */}
+          {/* ================= PUBLIC ROUTES ================= */}
           <Route path="/login" element={<StudentLoginPage />} />
           <Route path="/admin-login" element={<AdminLoginPage />} />
           <Route path="/" element={<Navigate to="/login" replace />} />
 
           {/* ================= ADMIN ROUTES ================= */}
-
           <Route
             path="/admin"
             element={
               <ProtectedRoute allowedRoles={["admin"]}>
-                <Layout>
-                  <AdminDashboard />
-                </Layout>
+                <LayoutWrapper />
               </ProtectedRoute>
             }
-          />
-
-          <Route
-            path="/admin/departments"
-            element={
-              <ProtectedRoute allowedRoles={["admin"]}>
-                <Layout>
-                  <DepartmentManagement />
-                </Layout>
-              </ProtectedRoute>
-            }
-          />
-
-          <Route
-            path="/admin/students"
-            element={
-              <ProtectedRoute allowedRoles={["admin"]}>
-                <Layout>
-                  <StudentManagement />
-                </Layout>
-              </ProtectedRoute>
-            }
-          />
-
-          <Route
-            path="/admin/subjects"
-            element={
-              <ProtectedRoute allowedRoles={["admin"]}>
-                <Layout>
-                  <SubjectManagement />
-                </Layout>
-              </ProtectedRoute>
-            }
-          />
-
-          <Route
-            path="/admin/marks"
-            element={
-              <ProtectedRoute allowedRoles={["admin"]}>
-                <Layout>
-                  <MarkManagement />
-                </Layout>
-              </ProtectedRoute>
-            }
-          />
-
-          <Route
-            path="/admin/attendance"
-            element={
-              <ProtectedRoute allowedRoles={["admin"]}>
-                <Layout>
-                  <AttendanceManagement />
-                </Layout>
-              </ProtectedRoute>
-            }
-          />
+          >
+            <Route index element={<AdminDashboard />} />
+            <Route path="departments" element={<DepartmentManagement />} />
+            <Route path="students" element={<StudentManagement />} />
+            <Route path="subjects" element={<SubjectManagement />} />
+            <Route path="marks" element={<MarkManagement />} />
+            <Route path="attendance" element={<AttendanceManagement />} />
+          </Route>
 
           {/* ================= STUDENT ROUTES ================= */}
-
           <Route
             path="/student"
             element={
               <ProtectedRoute allowedRoles={["student"]}>
-                <Layout>
-                  <StudentDashboard />
-                </Layout>
+                <LayoutWrapper />
               </ProtectedRoute>
             }
-          />
+          >
+            <Route index element={<StudentDashboard />} />
+            <Route path="subjects" element={<StudentSubjects />} />
+            <Route path="marks" element={<StudentMarks />} />
+            <Route path="attendance" element={<StudentAttendance />} />
+          </Route>
 
-          <Route
-            path="/student/subjects"
-            element={
-              <ProtectedRoute allowedRoles={["student"]}>
-                <Layout>
-                  <StudentSubjects />
-                </Layout>
-              </ProtectedRoute>
-            }
-          />
-
-          <Route
-            path="/student/marks"
-            element={
-              <ProtectedRoute allowedRoles={["student"]}>
-                <Layout>
-                  <StudentMarks />
-                </Layout>
-              </ProtectedRoute>
-            }
-          />
-
-          <Route
-            path="/student/attendance"
-            element={
-              <ProtectedRoute allowedRoles={["student"]}>
-                <Layout>
-                  <StudentAttendance />
-                </Layout>
-              </ProtectedRoute>
-            }
-          />
-
-          {/* Fallback — unknown routes */}
+          {/* ================= FALLBACK ================= */}
           <Route path="*" element={<Navigate to="/login" replace />} />
 
         </Routes>
       </Router>
     </AuthProvider>
-  )
+  );
 }
