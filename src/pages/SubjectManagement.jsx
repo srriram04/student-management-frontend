@@ -191,14 +191,18 @@ export const SubjectManagement = () => {
   return (
     <div className="space-y-6">
 
+      {/* SUCCESS */}
       {success && (
-        <div className="bg-green-100 text-green-700 p-2 rounded">
+        <div className="bg-green-100 text-green-700 p-3 rounded-lg text-sm">
           {success}
         </div>
       )}
 
-      <div className="flex justify-between">
-        <h2 className="text-2xl font-bold">Subject Management</h2>
+      {/* HEADER */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <h2 className="text-xl sm:text-2xl font-bold">
+          Subject Management
+        </h2>
 
         <DepartmentFilter
           departments={departments}
@@ -207,6 +211,7 @@ export const SubjectManagement = () => {
         />
       </div>
 
+      {/* TABLE */}
       <DataTable
         data={filteredSubjects}
         columns={[
@@ -225,9 +230,9 @@ export const SubjectManagement = () => {
         onClose={() => setIsModalOpen(false)}
         title={editingSubject ? "Edit Subject" : "Add Subject"}
       >
-        <form onSubmit={handleSubmit} className="space-y-3">
+        <form onSubmit={handleSubmit} className="space-y-4">
 
-          {errors.api && <p className="text-red-500">{errors.api}</p>}
+          {errors.api && <p className="text-red-500 text-sm">{errors.api}</p>}
 
           <select
             value={formData.department_id || ""}
@@ -267,8 +272,7 @@ export const SubjectManagement = () => {
           />
           <p className="text-red-500 text-sm">{errors.name}</p>
 
-          {/* CREATED BY */}
-          {!editingSubject && (
+          {!editingSubject ? (
             <>
               <input
                 placeholder="Created By"
@@ -278,10 +282,7 @@ export const SubjectManagement = () => {
               />
               <p className="text-red-500 text-sm">{errors.created_by}</p>
             </>
-          )}
-
-          {/* UPDATED BY */}
-          {editingSubject && (
+          ) : (
             <>
               <input
                 placeholder="Updated By"
@@ -293,19 +294,30 @@ export const SubjectManagement = () => {
             </>
           )}
 
-          <button
-            type="submit"
-            disabled={isSubmitting}
-            className="w-full bg-indigo-600 text-white py-2 rounded-xl"
-          >
-            {isSubmitting
-              ? <Loader2 className="animate-spin mx-auto"/>
-              : (editingSubject ? "Update" : "Create")}
-          </button>
+          <div className="flex flex-col sm:flex-row gap-2">
+            <button
+              type="button"
+              onClick={() => setIsModalOpen(false)}
+              className="w-full border py-2 rounded-xl"
+            >
+              Cancel
+            </button>
+
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className="w-full bg-indigo-600 text-white py-2 rounded-xl"
+            >
+              {isSubmitting
+                ? <Loader2 className="animate-spin mx-auto"/>
+                : (editingSubject ? "Update" : "Create")}
+            </button>
+          </div>
 
         </form>
       </Modal>
 
+      {/* DELETE */}
       <ConfirmModal
         isOpen={isDeleteModalOpen}
         onClose={()=>setIsDeleteModalOpen(false)}
