@@ -15,7 +15,7 @@ export const StudentSubjects = () => {
         if (!user?.roll_no) return;
 
         const res = await axios.get(
-          `http://127.0.0.1:8000/student_subjects/${user.roll_no}/`
+          `${BASE_URL}/student_subjects/${user.roll_no}/`
         );
 
         // ✅ DIRECT DATA FROM BACKEND

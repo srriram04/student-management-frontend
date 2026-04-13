@@ -3,7 +3,7 @@ import axios from "axios";
 
 const AuthContext = createContext();
 
-const BASE_URL = "http://127.0.0.1:8000";
+const BASE_URL = "https://student-management-backend-3dbc.onrender.com";
 
 const AuthProvider = ({ children }) => {
 
